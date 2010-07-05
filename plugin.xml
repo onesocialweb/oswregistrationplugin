@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin>
+   <class>org.onesocialweb.openfire.registration.plugin.RegistrationPlugin</class>
+   <name>RegistrationPlugin</name>
+   <description>Adds support for Registration based on generated Invite codes.</description>
+   <author>Vodafone Group Services Limited.</author>
+   <url>http://onesocialweb.org</url>
+   <version>0.1</version>
+   <date>18/06/2010</date>
+   <minServerVersion>3.6.4</minServerVersion>
+    <licenseType>apache</licenseType>	
+     <adminconsole>
+		<tab id="tab-codes" name="Registration Plugin" url="code-summary.jsp" description="Click to manage Invite Codes">
+			<sidebar id="sidebar-codes" name="Invite Codes">
+				<item id="codes-summary" name="Registration Codes Summary"
+						url="code-summary.jsp"
+						description="Invitation Code Management" />
+					<item id="code-new" name="New Invite Code"
+						url="code-new.jsp"
+						description="Create New Invite Codes" >	
+						 <sidebar id="code-edit" name="Manage Invite Codes">
+                           <item id="code-edit" name="Edit Invite Code"
+                                 url="code-edit.jsp"
+                                 description="Click to Edit an existing Invite Code"/>
+                         </sidebar>			
+                    </item>     
+			</sidebar>
+        </tab>
+    </adminconsole>
+</plugin>
