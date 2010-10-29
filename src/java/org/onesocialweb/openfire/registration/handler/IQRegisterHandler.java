@@ -229,7 +229,7 @@ public class IQRegisterHandler extends IQHandler implements ServerFeaturesProvid
         }
         else if (IQ.Type.set.equals(packet.getType())) {
             try {
-            
+            //registration!!!
                 Element iqElement = packet.getChildElement();
                 if (iqElement.element("remove") != null) {
                     // If inband registration is not allowed, return an error.
@@ -335,7 +335,7 @@ public class IQRegisterHandler extends IQHandler implements ServerFeaturesProvid
                         Stringprep.nodeprep(username);
                     }
 
-                    if (session.getStatus() == Session.STATUS_AUTHENTICATED) {
+                    if (session.getStatus() == Session.STATUS_AUTHENTICATED && !session.isAnonymousUser()) {
                         // Flag that indicates if the user is *only* changing his password
                         boolean onlyPassword = false;
                         if (iqElement.elements().size() == 2 &&
@@ -398,7 +398,7 @@ public class IQRegisterHandler extends IQHandler implements ServerFeaturesProvid
                             return reply;
                         }
                         else {
-                            // Create the new account
+                            // here...Create the new account
                             newUser = userManager.createUser(username, password, name, email);
                             DBManager.getInstance().increaseUsed(code);
                         }
