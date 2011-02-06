@@ -32,11 +32,12 @@
     <tr>    
     	 <th>&nbsp;</th>   
         <th nowrap width="10%"><fmt:message key="invitation.code" /></th>
-        <th nowrap width="10%"><fmt:message key="invitation.created" /></th>
-        <th nowrap width="10%"><fmt:message key="invitation.expires" /></th>
+        <th nowrap width="12%"><fmt:message key="invitation.created" /></th>
+        <th nowrap width="12%"><fmt:message key="invitation.expires" /></th>
         <th nowrap width="10%"><fmt:message key="invitation.status" /></th>
-        <th nowrap width="10%"><fmt:message key="invitation.total.users" /></th>
-        <th nowrap width="10%"><fmt:message key="invitation.used" /></th>       
+        <th nowrap width="8%"><fmt:message key="invitation.total.users" /></th>
+        <th nowrap width="8%"><fmt:message key="invitation.used" /></th>
+        <th nowrap width="10%"><fmt:message key="invitation.email" /></th>         
         <th nowrap width="1%"><fmt:message key="invitation.edit" /></th>
         <th nowrap width="1%"><fmt:message key="invitation.invalidate" /></th>      
     </tr>
@@ -52,10 +53,10 @@
        		 <td width="10%">
             	<%= inv.getCode() %>
        		 </td>
-       		  <td width="10%">
+       		  <td width="12%">
             	<%= sdf.format(inv.getFrom()) %>
        		 </td>
-       		  <td width="10%">
+       		  <td width="12%">
             	<% if ((inv.getExpires()==null) || (inv.getExpires().compareTo(inv.getFrom())==0)){ %>
             	---
             	<% } else { %>
@@ -70,11 +71,18 @@
                 <fmt:message key="invitation.invalid" />
               <% } %>  
        		 </td>
-       		  <td width="10%">
+       		  <td width="8%">
             	<%= inv.getTotalAccounts() %>
        		 </td>
-       		  <td width="10%">
+       		  <td width="8%">
             	<%= inv.getUsed() %>
+       		 </td>
+       		  <td width="10%">
+            	<% if (inv.getEmail() == null) {%>
+            		<fmt:message key="field.blank" />
+            	<% } else { %>
+            	<%= inv.getEmail() %>
+            	<% } %>	
        		 </td>
        		 <td width="1%" align="center">       	
        		 <% if (inv.getValid()) { %>	 

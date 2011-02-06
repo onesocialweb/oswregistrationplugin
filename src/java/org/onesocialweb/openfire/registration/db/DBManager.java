@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.util.Log;
+import org.onesocialweb.openfire.registration.exception.EmailDoesntMatchException;
 import org.onesocialweb.openfire.registration.model.DefaultInvitationFactory;
 import org.onesocialweb.openfire.registration.model.Invitation;
 import org.onesocialweb.openfire.registration.model.InvitationFactory;
@@ -36,6 +37,7 @@ public class DBManager {
 		}
 		return instance;
 	}
+	
 	
 	
 	public int createCode(String code, int duration, int total) throws SQLException {
@@ -73,12 +75,51 @@ public class DBManager {
 				
 		return i_code;
 	}
+	
+	public String createCode(int duration, int total, String email) throws SQLException {
+		
+		if ((connection==null) || (connection.isClosed()))  connection=this.getConnection();
+
+		String code = factory.code();
+		
+		long timeMilis= Calendar.getInstance().getTimeInMillis();		
+		java.sql.Timestamp sqlDateStart =  new java.sql.Timestamp(timeMilis);
+		
+		String query= "INSERT INTO invitation(code, created, expires, total, used, valid, email) VALUES (?,?,?,?,?,?,?) ";
+		PreparedStatement st= connection.prepareStatement(query);
+	
+		st.setString(1, code);
+		st.setTimestamp(2, sqlDateStart);
+	
+		java.sql.Timestamp sqlDateExp =null;	
+		if (duration>0){
+			Calendar now = Calendar.getInstance();
+			
+			now.add(Calendar.DATE, duration);					
+			sqlDateExp= new java.sql.Timestamp(now.getTimeInMillis());			
+			st.setTimestamp(3, sqlDateExp);
+			
+		} else  {	
+			st.setTimestamp(3, null);
+		}
+		st.setInt(4, total);
+		st.setInt(5, 0);
+		st.setBoolean(6, true);	
+		st.setString(7,email);
+	
+		int i_code1 = st.executeUpdate();
+								
+		if (i_code1 ==1 )
+			return code;
+		
+		else return null;
+	}
 
 	public List<Invitation> getCodes() throws SQLException { 
 		
 		if ((connection==null) || (connection.isClosed()))  connection=this.getConnection();
 		
-		String query= "select code, created, expires, total, used, valid from invitation order by valid desc, created desc";
+		String query= "select code, created, expires, total, used, valid, email from invitation order by valid desc, created desc";
 		PreparedStatement st= connection.prepareStatement(query);
 		ResultSet rs= st.executeQuery();
 		List<Invitation> existingCodes= new ArrayList<Invitation>();
@@ -90,6 +131,7 @@ public class DBManager {
 			invitation.setTotalAccounts(rs.getInt("total"));
 			invitation.setUsed(rs.getInt("used"));
 			invitation.setValid(rs.getBoolean("valid"));
+			invitation.setEmail(rs.getString("email"));
 			
 			if (!checkValid(invitation)){
 				invalidateCode(invitation.getCode());
@@ -107,7 +149,7 @@ public class DBManager {
 		
 		if ((connection==null) || (connection.isClosed())) connection=this.getConnection();
 		
-		String query= "select code, created, expires, total, used, valid from invitation where invitation.code='"+code+"'";
+		String query= "select code, created, expires, total, used, valid, email from invitation where invitation.code='"+code+"'";
 		PreparedStatement st= connection.prepareStatement(query);
 		ResultSet rs= st.executeQuery();				
 		
@@ -123,6 +165,7 @@ public class DBManager {
 		invitation.setTotalAccounts(rs.getInt("total"));
 		invitation.setUsed(rs.getInt("used"));
 		invitation.setValid(rs.getBoolean("valid"));
+		invitation.setEmail(rs.getString("email"));
 
 		if (!checkValid(invitation)){
 			invalidateCode(invitation.getCode());
@@ -131,7 +174,20 @@ public class DBManager {
 			
 		return invitation;
 		
-	}	
+	}
+	
+	public boolean emailIsActive(String email) throws SQLException{
+		
+		if ((connection==null) || (connection.isClosed())) connection=this.getConnection();
+		
+		String query= "select * from invitation where invitation.email='"+email+"' AND invitation.valid=1";
+		PreparedStatement st= connection.prepareStatement(query);
+		ResultSet rs= st.executeQuery();	
+		
+		boolean found=rs.next();
+				
+		return found;
+	}
 	
 	public int updateCode(Invitation invite) throws SQLException {
 		
@@ -204,8 +260,31 @@ public class DBManager {
 		st.setInt(1, used);
 		st.setBoolean(2, valid);
 		st.executeUpdate();
+				
+	}
+	
+
+	
+	public boolean emailMatches(String code, String email)  throws SQLException{
 		
+		boolean matches=false;
 		
+		if ((connection==null) || (connection.isClosed())) connection=this.getConnection();
+		
+		String query= "select email from invitation where invitation.code='"+code+"'";
+		PreparedStatement st= connection.prepareStatement(query);
+		ResultSet rs= st.executeQuery();	
+						
+		if (rs.next()){		
+			String emailRegistered =rs.getString("email");
+			if (emailRegistered!=null) {
+				if (emailRegistered.equalsIgnoreCase(email)) {
+					matches=true;			
+				}
+			} else return true;
+		} 
+		
+		return matches;
 	}
 	
 	private Connection getConnection() throws SQLException {

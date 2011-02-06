@@ -20,8 +20,9 @@ public class RegistrationPlugin implements Plugin {
 	
 	 public void initializePlugin(PluginManager manager, File pluginDirectory) {
 		
-	       if (!table_exists())
-	        	create_table();
+	       if (!table_exists("invitation"))
+	        	create_InvitationTable();	      
+	       createEmailColumn();
 	       iqRegisterHandler = new IQRegisterHandler();
 	       IQRouter iqRouter = XMPPServer.getInstance().getIQRouter();
 	       iqRouter.addHandler(iqRegisterHandler);
@@ -34,11 +35,11 @@ public class RegistrationPlugin implements Plugin {
 	    	iqRouter.removeHandler(iqRegisterHandler);
 	    }
 	    
-	    private boolean table_exists(){
+	    private boolean table_exists(String table){
 	    	int i=0;
 	    	try {
 	    		Statement st= DbConnectionManager.getConnection().createStatement();		
-	    		String query= "show tables like '%invitation%'";		
+	    		String query= "show tables like '%" + table + "%'";		
 	    		ResultSet rs= st.executeQuery(query);
 	    		while (rs.next())
 	    			i++;
@@ -53,7 +54,7 @@ public class RegistrationPlugin implements Plugin {
 	    	return false;
 	    }
 	    
-	    private void create_table(){
+	    private void create_InvitationTable(){
 	    	String createSQL = "create TABLE invitation (code char(50) PRIMARY KEY, created DATETIME, "
 	    		+"expires DATETIME DEFAULT NULL, total int, used int, valid boolean)";
 	    	try {
@@ -63,6 +64,20 @@ public class RegistrationPlugin implements Plugin {
 	    	} catch (SQLException e)
 	    	{
 	    		Log.error("An unxpected DB error ocurred: " , e);
+	    	}
+	    }
+	    
+	    private void createEmailColumn(){
+
+    		String createSQL = "ALTER TABLE invitation ADD email char(50)";
+	    	try {
+	    			    
+	    		Statement st= DbConnectionManager.getConnection().createStatement();	
+	    		st.executeUpdate(createSQL);
+	    		
+	    	} catch (SQLException e){
+	    		if (e.getErrorCode()!=1060)
+	    			Log.error("An unxpected DB error ocurred: " , e);
 	    	}
 	    }
 	    

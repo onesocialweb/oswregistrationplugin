@@ -41,6 +41,8 @@ import org.jivesoftware.stringprep.StringprepException;
 import org.jivesoftware.util.JiveGlobals;
 import org.jivesoftware.util.Log;
 import org.onesocialweb.openfire.registration.db.DBManager;
+import org.onesocialweb.openfire.registration.exception.EmailDoesntMatchException;
+import org.onesocialweb.openfire.registration.exception.InvalidCodeException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
@@ -309,7 +311,7 @@ public class IQRegisterHandler extends IQHandler implements ServerFeaturesProvid
                             values = field.getValues();
                             code = (values.hasNext() ? values.next() : " ");     
                             if ((code==null) || (code.length()==0) || !(isValid(code)))
-                            	throw new IllegalArgumentException("The provided Invitation Code is not valid");
+                            	throw new InvalidCodeException();
                         }
                         else
                         	throw new IllegalArgumentException("No Invitation Code was provided");
@@ -398,9 +400,12 @@ public class IQRegisterHandler extends IQHandler implements ServerFeaturesProvid
                             return reply;
                         }
                         else {
-                            // here...Create the new account
-                            newUser = userManager.createUser(username, password, name, email);
-                            DBManager.getInstance().increaseUsed(code);
+                            // here...Create the new account!!
+                        	if (DBManager.getInstance().emailMatches(code, email)){
+                        		newUser = userManager.createUser(username, password, name, email);
+                        		DBManager.getInstance().increaseUsed(code);                        		
+                        	} else 
+                        		throw new EmailDoesntMatchException();
                         }
                     }
                     // Set and save the extra user info (e.g. full name, etc.)
@@ -410,11 +415,20 @@ public class IQRegisterHandler extends IQHandler implements ServerFeaturesProvid
 
                     reply = IQ.createResultIQ(packet);
                 }
+            } catch(InvalidCodeException e){
+            	reply = IQ.createResultIQ(packet);
+                reply.setChildElement(packet.getChildElement().createCopy());
+                reply.setError(new PacketError(PacketError.Condition.conflict, PacketError.Type.cancel , e.getMessage() ));
+            }
+            catch (EmailDoesntMatchException e){
+            	reply = IQ.createResultIQ(packet);
+                reply.setChildElement(packet.getChildElement().createCopy());
+                reply.setError(new PacketError(PacketError.Condition.conflict, PacketError.Type.cancel , e.getMessage() ));
             }
             catch (UserAlreadyExistsException e) {
                 reply = IQ.createResultIQ(packet);
                 reply.setChildElement(packet.getChildElement().createCopy());
-                reply.setError(PacketError.Condition.conflict);
+                reply.setError(new PacketError(PacketError.Condition.conflict, PacketError.Type.cancel , e.getMessage()));
             }
             catch (UserNotFoundException e) {
                 reply = IQ.createResultIQ(packet);

@@ -1,7 +1,7 @@
 package org.onesocialweb.openfire.registration.model;
 
 
-public abstract class InvitationFactory {
+public interface InvitationFactory {
 	
 	
 	public abstract Invitation invitation();

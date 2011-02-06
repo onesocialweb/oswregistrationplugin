@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app>
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>MailServlet</servlet-name>
+        <servlet-class>org.onesocialweb.openfire.registration.servlet.MailServlet</servlet-class>
+    </servlet>
+        <servlet>
+      <servlet-name>ReCaptchaServlet</servlet-name>
+        <servlet-class>org.onesocialweb.openfire.registration.servlet.ReCaptchaServlet</servlet-class>
+    </servlet>
+
+    <!-- Servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>MailServlet</servlet-name>
+        <url-pattern>/email</url-pattern>
+    </servlet-mapping>
+     <servlet-mapping>
+        <servlet-name>ReCaptchaServlet</servlet-name>
+        <url-pattern>/captcha</url-pattern>
+    </servlet-mapping>
+    
+</web-app>

@@ -3,7 +3,7 @@ package org.onesocialweb.openfire.registration.model;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-public class DefaultInvitationFactory extends InvitationFactory{
+public class DefaultInvitationFactory implements InvitationFactory{
 
 	@Override
 	public Invitation invitation(){

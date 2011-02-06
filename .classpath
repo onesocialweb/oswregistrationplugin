@@ -5,5 +5,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/openfire"/>
 	<classpathentry kind="lib" path="/openfire/build/lib/merge/dom4j.jar"/>
 	<classpathentry kind="lib" path="/openfire/build/lib/merge/stringprep.jar"/>
+	<classpathentry kind="lib" path="lib/servlet.jar"/>
+	<classpathentry kind="lib" path="lib/gwt-recaptcha-1.0.0.Beta2.jar"/>
+	<classpathentry kind="lib" path="lib/recaptcha4j-0.0.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -3,7 +3,7 @@ package org.onesocialweb.openfire.registration.model;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DefaultInvitation extends Invitation
+public class DefaultInvitation implements Invitation
 {
 
 	private String code;
@@ -20,7 +20,17 @@ public class DefaultInvitation extends Invitation
 
 	private int used;
 	
+	private String email;
 	
+	
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	@Override
 	public int getTotalAccounts() {
 		return totalUsers;
